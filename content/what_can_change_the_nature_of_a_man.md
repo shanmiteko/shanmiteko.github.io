@@ -7,6 +7,8 @@ tags = ["PST"]
 
 ![question](../image/what_can_change_the_nature_of_a_man/question.png)
 
+<!-- more -->
+
 ![answer_1](../image/what_can_change_the_nature_of_a_man/answer_1.png)
 
 ![answer_2](../image/what_can_change_the_nature_of_a_man/answer_2.png)

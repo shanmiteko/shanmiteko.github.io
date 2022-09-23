@@ -7,6 +7,8 @@ tags = ["software"]
 
 ![config](../image/plasma_pk_updates/1.png)
 
+<!-- more -->
+
 每小时触发一次检查
 ```js
 Timer {
