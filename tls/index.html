@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://shanmiteko.github.io/style.css">
+    <link rel="stylesheet" href="https://shanmiteko.github.io/color/blue.css">
+
+    <link rel="stylesheet" href="https://shanmiteko.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://shanmiteko.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            :)
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://shanmiteko.github.io">blog</a></li>
+            
+                <li><a href="https://shanmiteko.github.io/tags">tags</a></li>
+            
+                <li><a href="https://shanmiteko.github.io/about">about</a></li>
+            
+                <li><a href="https://github.com/shanmiteko" target="_blank" rel="noopener noreferrer">github</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://shanmiteko.github.io/tls/">TLS协议中的SNI</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2022-09-25
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://shanmiteko.github.io/tags/tls/">#TLS</a>&nbsp;
+                <a class="post-tag" href="https://shanmiteko.github.io/tags/sni/">#SNI</a></span>
+    
+
+        
+        <div class="post-content">
+            <h1 id="tls1-3wo-shou-bao-ding-yi">TLS1.3握手包定义</h1>
+<span id="continue-reading"></span><h2 id="tls1-3">TLS1.3</h2>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>TLSv1.3 Record Layer: Handshake Protocol: Client Hello
+</span><span>    Content Type: Handshake (22)
+</span><span>    Version: TLS 1.0 (0x0301)
+</span><span>    Length: 512
+</span><span>    Handshake Protocol: Client Hello
+</span><span>        Handshake Type: Client Hello (1)
+</span><span>        Length: 508
+</span><span>        Version: TLS 1.2 (0x0303)
+</span><span>        Random: 5f085346c4e0cc683b6b529ee47f9369720df0bf515e2ed47a0e2eb65eb0ad0e
+</span><span>        Session ID Length: 32
+</span><span>        Session ID: b9c1145a1efeca326dd82ac8ac2bbe2799a69655a6043206808ebc72d0802d3b
+</span><span>        Cipher Suites Length: 34
+</span><span>        Cipher Suites (17 suites)
+</span><span>        Compression Methods Length: 1
+</span><span>        Compression Methods (1 method)
+</span><span>        Extensions Length: 401
+</span><span>        Extension: server_name (len=23)
+</span><span>            Type: server_name (0)
+</span><span>            Length: 23
+</span><span>            Server Name Indication extension
+</span><span>                Server Name list length: 21
+</span><span>                Server Name Type: host_name (0)
+</span><span>                Server Name length: 18
+</span><span>                Server Name: www.rfc-editor.org
+</span><span>        Extension: extended_master_secret (len=0)
+</span><span>        Extension: renegotiation_info (len=1)
+</span><span>        Extension: supported_groups (len=14)
+</span><span>        Extension: ec_point_formats (len=2)
+</span><span>        Extension: session_ticket (len=0)
+</span><span>        Extension: application_layer_protocol_negotiation (len=14)
+</span><span>        Extension: status_request (len=5)
+</span><span>        Extension: delegated_credentials (len=10)
+</span><span>        Extension: key_share (len=107)
+</span><span>        Extension: supported_versions (len=5)
+</span><span>        Extension: signature_algorithms (len=24)
+</span><span>        Extension: psk_key_exchange_modes (len=2)
+</span><span>        Extension: record_size_limit (len=2)
+</span><span>        Extension: padding (len=132)
+</span></code></pre>
+<h2 id="record-layer">Record Layer</h2>
+<p><img src="https://shanmiteko.github.io/tls/../image/tls/record.png" alt="record" /></p>
+<details>
+<summary>detail</summary>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>enum {
+</span><span>    invalid(0),
+</span><span>    change_cipher_spec(20),
+</span><span>    alert(21),
+</span><span>    handshake(22),
+</span><span>    application_data(23),
+</span><span>    (255)
+</span><span>} ContentType;
+</span><span>
+</span><span>struct {
+</span><span>    ContentType type;
+</span><span>    ProtocolVersion legacy_record_version;
+</span><span>    uint16 length;
+</span><span>    opaque fragment[TLSPlaintext.length];
+</span><span>} TLSPlaintext;
+</span></code></pre>
+</details>
+<h2 id="handshak-client-hello">Handshak - Client Hello</h2>
+<p><img src="https://shanmiteko.github.io/tls/../image/tls/client_hello.png" alt="client_hello" /></p>
+<details>
+<summary>detail</summary>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>enum {
+</span><span>    client_hello(1),
+</span><span>    server_hello(2),
+</span><span>    new_session_ticket(4),
+</span><span>    end_of_early_data(5),
+</span><span>    encrypted_extensions(8),
+</span><span>    certificate(11),
+</span><span>    certificate_request(13),
+</span><span>    certificate_verify(15),
+</span><span>    finished(20),
+</span><span>    key_update(24),
+</span><span>    message_hash(254),
+</span><span>    (255)
+</span><span>} HandshakeType;
+</span><span>
+</span><span>struct {
+</span><span>    HandshakeType msg_type;    /* handshake type */
+</span><span>    uint24 length;             /* remaining bytes in message */
+</span><span>    select (Handshake.msg_type) {
+</span><span>        case client_hello:          ClientHello;
+</span><span>        case server_hello:          ServerHello;
+</span><span>        case end_of_early_data:     EndOfEarlyData;
+</span><span>        case encrypted_extensions:  EncryptedExtensions;
+</span><span>        case certificate_request:   CertificateRequest;
+</span><span>        case certificate:           Certificate;
+</span><span>        case certificate_verify:    CertificateVerify;
+</span><span>        case finished:              Finished;
+</span><span>        case new_session_ticket:    NewSessionTicket;
+</span><span>        case key_update:            KeyUpdate;
+</span><span>    };
+</span><span>} Handshake;
+</span></code></pre>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>uint16 ProtocolVersion;
+</span><span>opaque Random[32];
+</span><span>
+</span><span>uint8 CipherSuite[2];    /* Cryptographic suite selector */
+</span><span>
+</span><span>struct {
+</span><span>    ProtocolVersion legacy_version = 0x0303;    /* TLS v1.2 */
+</span><span>    Random random;
+</span><span>    opaque legacy_session_id&lt;0..32&gt;;
+</span><span>    CipherSuite cipher_suites&lt;2..2^16-2&gt;;
+</span><span>    opaque legacy_compression_methods&lt;1..2^8-1&gt;;
+</span><span>    Extension extensions&lt;8..2^16-1&gt;;
+</span><span>} ClientHello;
+</span></code></pre>
+</details>
+<h2 id="extensions">Extensions</h2>
+<p><img src="https://shanmiteko.github.io/tls/../image/tls/ext.png" alt="ext" /></p>
+<details>
+<summary>detail</summary>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>struct {
+</span><span>    ExtensionType extension_type;
+</span><span>    opaque extension_data&lt;0..2^16-1&gt;;
+</span><span>} Extension;
+</span><span>
+</span><span>enum {
+</span><span>    server_name(0),                             /* RFC 6066 */
+</span><span>    max_fragment_length(1),                     /* RFC 6066 */
+</span><span>    status_request(5),                          /* RFC 6066 */
+</span><span>    supported_groups(10),                       /* RFC 8422, 7919 */
+</span><span>    signature_algorithms(13),                   /* RFC 8446 */
+</span><span>    use_srtp(14),                               /* RFC 5764 */
+</span><span>    heartbeat(15),                              /* RFC 6520 */
+</span><span>    application_layer_protocol_negotiation(16), /* RFC 7301 */
+</span><span>    signed_certificate_timestamp(18),           /* RFC 6962 */
+</span><span>    client_certificate_type(19),                /* RFC 7250 */
+</span><span>    server_certificate_type(20),                /* RFC 7250 */
+</span><span>    padding(21),                                /* RFC 7685 */
+</span><span>    pre_shared_key(41),                         /* RFC 8446 */
+</span><span>    early_data(42),                             /* RFC 8446 */
+</span><span>    supported_versions(43),                     /* RFC 8446 */
+</span><span>    cookie(44),                                 /* RFC 8446 */
+</span><span>    psk_key_exchange_modes(45),                 /* RFC 8446 */
+</span><span>    certificate_authorities(47),                /* RFC 8446 */
+</span><span>    oid_filters(48),                            /* RFC 8446 */
+</span><span>    post_handshake_auth(49),                    /* RFC 8446 */
+</span><span>    signature_algorithms_cert(50),              /* RFC 8446 */
+</span><span>    key_share(51),                              /* RFC 8446 */
+</span><span>    (65535)
+</span><span>} ExtensionType;
+</span></code></pre>
+</details>
+<h2 id="sni-extension-server-name-indication">SNI Extension(Server Name Indication)</h2>
+<p><img src="https://shanmiteko.github.io/tls/../image/tls/sni.png" alt="SNI" /></p>
+<details>
+<summary>detail</summary>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>struct {
+</span><span>    NameType name_type;
+</span><span>    select (name_type) {
+</span><span>        case host_name: HostName;
+</span><span>    } name;
+</span><span>} ServerName;
+</span><span>
+</span><span>enum {
+</span><span>    host_name(0), (255)
+</span><span>} NameType;
+</span><span>
+</span><span>opaque HostName&lt;1..2^16-1&gt;;
+</span><span>
+</span><span>struct {
+</span><span>    ServerName server_name_list&lt;1..2^16-1&gt;
+</span><span>} ServerNameList;
+</span></code></pre>
+<p>The ServerNameList MUST NOT contain more than one name of the same name_type.</p>
+</details>
+<p>参考</p>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc5246#section-4">The purpose of this presentation language is to document TLS only</a></li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc5246">TLS1.2 RFC5246</a></li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc8446">TLS1.3 RFC8446</a></li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc6066">Extension Definitions RFC6066</a></li>
+</ul>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright">
+                        <span>© 
+    2022
+ Powered by <a href="https://www.getzola.org/">Zola</a></span>
+                    <span class="copyright-theme">
+                        <span class="copyright-theme-sep">:: </span>
+                        Theme: <a href="https://github.com/pawroman/zola-theme-terminimal/">Terminimal</a> by pawroman
+                    </span>
+                </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="robots" content="noodp"/>
+
+    <link rel="stylesheet" href="https://shanmiteko.github.io/style.css">
+    <link rel="stylesheet" href="https://shanmiteko.github.io/color/blue.css">
+
+    <link rel="stylesheet" href="https://shanmiteko.github.io/font-hack-subset.css">
+
+    </head>
+
+<body class="">
+<div class="container">
+    
+    <header class="header">
+        <div class="header__inner">
+            <div class="header__logo">
+                    
+                <a href="https://shanmiteko.github.io" style="text-decoration: none;">
+                    <div class="logo">
+                      
+                            :)
+                        
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        
+        
+                <nav class="menu">
+            <ul class="menu__inner">
+                <li class="active"><a href="https://shanmiteko.github.io">blog</a></li>
+            
+                <li><a href="https://shanmiteko.github.io/tags">tags</a></li>
+            
+                <li><a href="https://shanmiteko.github.io/about">about</a></li>
+            
+                <li><a href="https://github.com/shanmiteko" target="_blank" rel="noopener noreferrer">github</a></li>
+            </ul>
+        </nav>
+    
+    
+        
+    </header>
+    
+
+    <div class="content">
+        
+    <div class="post">
+        
+    <h1 class="post-title"><a href="https://shanmiteko.github.io/plasma-pk-updates/">plasma软件更新工具的更新逻辑</a></h1>
+    <div class="post-meta-inline">
+        
+    <span class="post-date">
+            2022-09-22
+        </span>
+
+    </div>
+
+    
+        <span class="post-tags-inline">
+                :: tags:&nbsp;
+                <a class="post-tag" href="https://shanmiteko.github.io/tags/software/">#software</a></span>
+    
+
+        
+        <div class="post-content">
+            <p><img src="https://shanmiteko.github.io/plasma-pk-updates/../image/plasma_pk_updates/1.png" alt="config" /></p>
+<span id="continue-reading"></span>
+<p>每小时触发一次检查</p>
+<pre data-lang="js" style="background-color:#2b303b;color:#c0c5ce;" class="language-js "><code class="language-js" data-lang="js"><span style="color:#bf616a;">Timer </span><span>{
+</span><span>    id: </span><span style="color:#bf616a;">timer
+</span><span>    repeat: </span><span style="color:#d08770;">true
+</span><span>    triggeredOnStart: </span><span style="color:#d08770;">true
+</span><span>    interval: </span><span style="color:#d08770;">1000 </span><span>* </span><span style="color:#d08770;">60 </span><span>* </span><span style="color:#d08770;">60</span><span>; </span><span style="color:#65737e;">// 1 hour
+</span><span>    onTriggered: {
+</span><span>        </span><span style="color:#b48ead;">if </span><span>(</span><span style="color:#8fa1b3;">needsForcedUpdate</span><span>() &amp;&amp; </span><span style="color:#bf616a;">networkAllowed </span><span>&amp;&amp; </span><span style="color:#bf616a;">batteryAllowed</span><span>) {
+</span><span>            </span><span style="color:#bf616a;">PkUpdates</span><span>.</span><span style="color:#8fa1b3;">checkUpdates</span><span>(</span><span style="color:#d08770;">true </span><span style="color:#65737e;">/* force */</span><span>, </span><span style="color:#d08770;">false </span><span style="color:#65737e;">/* manual */</span><span>);
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>比较上一次更新所过去的秒数</p>
+<pre data-lang="js" style="background-color:#2b303b;color:#c0c5ce;" class="language-js "><code class="language-js" data-lang="js"><span style="color:#b48ead;">function </span><span style="color:#8fa1b3;">needsForcedUpdate</span><span>() {
+</span><span>    </span><span style="color:#b48ead;">var </span><span style="color:#bf616a;">secs </span><span>= (</span><span style="color:#ebcb8b;">Date</span><span>.</span><span style="color:#8fa1b3;">now</span><span>() - </span><span style="color:#bf616a;">PkUpdates</span><span>.</span><span style="color:#8fa1b3;">lastRefreshTimestamp</span><span>())/</span><span style="color:#d08770;">1000</span><span>; </span><span style="color:#65737e;">// compare with the saved timestamp
+</span><span>    </span><span style="color:#b48ead;">if </span><span>(</span><span style="color:#bf616a;">secs </span><span>&lt; </span><span style="color:#d08770;">0</span><span>) { </span><span style="color:#65737e;">// never checked before
+</span><span>        </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">true</span><span>;
+</span><span>    } </span><span style="color:#b48ead;">else if </span><span>(</span><span style="color:#bf616a;">checkDaily</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">secs </span><span>&gt;= </span><span style="color:#bf616a;">secsInDay</span><span>;
+</span><span>    } </span><span style="color:#b48ead;">else if </span><span>(</span><span style="color:#bf616a;">checkWeekly</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">secs </span><span>&gt;= </span><span style="color:#bf616a;">secsInWeek</span><span>;
+</span><span>    } </span><span style="color:#b48ead;">else if </span><span>(</span><span style="color:#bf616a;">checkMonthly</span><span>) {
+</span><span>        </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">secs </span><span>&gt;= </span><span style="color:#bf616a;">secsInMonth</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#b48ead;">return </span><span style="color:#d08770;">false</span><span>;
+</span><span>}
+</span></code></pre>
+<p><a href="https://phabricator.kde.org/source/plasma-pk-updates/browse/master/src/plasma/contents/ui/main.qml">相关源码</a></p>
+
+        </div>
+
+        
+    </div>
+
+    </div>
+
+    
+    <footer class="footer">
+        <div class="footer__inner">
+                <div class="copyright">
+                        <span>© 
+    2022
+ Powered by <a href="https://www.getzola.org/">Zola</a></span>
+                    <span class="copyright-theme">
+                        <span class="copyright-theme-sep">:: </span>
+                        Theme: <a href="https://github.com/pawroman/zola-theme-terminimal/">Terminimal</a> by pawroman
+                    </span>
+                </div>
+            </div>
+    </footer>
+    
+
+</div>
+</body>
+
+</html>
